@@ -1,0 +1,53 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+.DS_Store
+dist
+dist-ssr
+coverage
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+*.tsbuildinfo
+
+.eslintcache
+
+# Cypress
+/cypress/videos/
+/cypress/screenshots/
+
+# Vitest
+__screenshots__/
+
+# 后端 (Django & Python)
+backend/.env
+backend/db.sqlite3
+backend/__pycache__/
+*.pyc
+backend/media/
+venv/
+.venv/
+
+# 前端 (Vue & Node)
+frontend/node_modules/
+frontend/dist/
+.DS_Store
+
+# 之前你提到过的忽略的语音大文件
+frontend/public/vad/

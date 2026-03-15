@@ -112,23 +112,20 @@ function focus() {
 }
 
 async function handleSend(event, audio_msg) {
-  let content
-  if (typeof content !== 'string') {
-    content = message.value;
-  }
-
-  if (!content) return
-  if (audio_msg) {
-    content = audio_msg.trim()
+ // 👇 1. 智能判断：是用麦克风说的话，还是键盘打的字？
+  let content = '';
+  if (typeof incomingContent === 'string' && incomingContent.trim() !== '') {
+    content = incomingContent; // 如果是麦克风传来的，接住它！(比如 '你好。')
   } else {
-    content = message.value.trim()
+    content = message.value;   // 如果没用麦克风，就读取输入框里的字
   }
-  if (!content) return
 
-  initAudioStream()
+  // 👇 2. 如果什么都没说，直接拦截
+  if (!content) return;
 
-  const curId = ++ processId
-  message.value = ''
+  // 👇 3. 发送的瞬间：清空输入框，并把麦克风面板自动收起来！
+  message.value = '';
+  showMic.value = false;
 
   emit('pushBackMessage', {role: 'user', content: content, id: crypto.randomUUID()})
   emit('pushBackMessage', {role: 'ai', content: '', id: crypto.randomUUID()})

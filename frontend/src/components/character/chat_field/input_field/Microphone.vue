@@ -39,14 +39,17 @@ const startRecording = async () => {
     console.error("VAD 初始化失败:", e);
   }
 };
-// 将 Float32 转 PCM 16-bit
-const float32ToInt16 = (float32Array) => {
-  const buffer = new Int16Array(float32Array.length);
-  for (let i = 0; i < float32Array.length; i++) {
-    let s = Math.max(-1, Math.min(1, float32Array[i]));
-    buffer[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+// 将 Float32 转为 Int16 (PCM 格式)
+const float32ToInt16 = (buffer) => {
+  let l = buffer.length;
+  // 这里定义了 buf 变量
+  const buf = new Int16Array(l);
+  while (l--) {
+    let s = Math.max(-1, Math.min(1, buffer[l]));
+    buf[l] = s < 0 ? s * 0x8000 : s * 0x7fff;
   }
-  return buffer.buffer;
+  // 最后必须返回 buf.buffer
+  return buf.buffer;
 };
 
 const sendToBackend = async (arrayBuffer) => {
@@ -57,6 +60,13 @@ const sendToBackend = async (arrayBuffer) => {
   try {
     const res = await api.post('/api/friend/message/asr/asr/', formData)
     const data = res.data
+
+    // 👇 加这三行！看看后端到底返回了什么鬼东西！
+    console.log("🔥 语音识别结果返回啦：", data);
+    if (!data.text) {
+        alert("警告：后端返回了空的识别结果！");
+    }
+
     if (data.result === 'success') {
       emit('send', data.text)
     }

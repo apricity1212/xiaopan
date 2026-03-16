@@ -111,25 +111,41 @@ function focus() {
   inputRef.value.focus()
 }
 
-async function handleSend(event, audio_msg) {
- // 👇 1. 智能判断：是用麦克风说的话，还是键盘打的字？
-  let content = '';
-  if (typeof incomingContent === 'string' && incomingContent.trim() !== '') {
-    content = incomingContent; // 如果是麦克风传来的，接住它！(比如 '你好。')
-  } else {
-    content = message.value;   // 如果没用麦克风，就读取输入框里的字
+// 注意：直接完整复制下面这整个 handleSend 函数
+const handleSend = async (voiceText) => {
+  // 1. 智能判断：如果是语音传来的字，强制塞进输入框
+  if (typeof voiceText === 'string' && voiceText.trim() !== '') {
+    message.value = voiceText;
   }
 
-  // 👇 2. 如果什么都没说，直接拦截
-  if (!content) return;
+  // 2. 如果什么都没输入，直接拦截
+  if (!message.value || !message.value.trim()) {
+    return;
+  }
 
-  // 👇 3. 发送的瞬间：清空输入框，并把麦克风面板自动收起来！
+  // 3. 把文字保存下来，瞬间清空输入框并收起麦克风
+  const content = message.value;
+  console.log("✅ 聊天框已接住文字：", content);
+
   message.value = '';
   showMic.value = false;
 
-  emit('pushBackMessage', {role: 'user', content: content, id: crypto.randomUUID()})
-  emit('pushBackMessage', {role: 'ai', content: '', id: crypto.randomUUID()})
+  // 👇 极其关键的一行！就是你刚才不小心删掉的“内鬼”！用来防止旧消息串台！
+  ++processId;
+  const curId = processId;
 
+  // 4. 先把我们的提问和AI的空对话框渲染到屏幕上
+  try {
+    emit('pushBackMessage', {role: 'user', content: content, id: crypto.randomUUID()});
+    emit('pushBackMessage', {role: 'ai', content: '', id: crypto.randomUUID()});
+  } catch (e) {
+    console.error("❌ 渲染消息报错：", e);
+  }
+
+  // 👇👇👇 就是这里！加上这一行，提前唤醒并准备好播放器！ 👇👇👇
+  initAudioStream();
+
+  // 5. 向后端大模型发送流式请求
   try {
     await streamApi('/api/friend/message/chat/', {
       body: {
@@ -137,21 +153,27 @@ async function handleSend(event, audio_msg) {
         message: content,
       },
       onmessage(data, isDone) {
-        if (curId !== processId) return
+        // 👇 这里用到了 curId，如果不定义就会全线崩溃
+        if (curId !== processId) return;
 
         if (data.content) {
-          emit('addToLastMessage', data.content)
+          emit('addToLastMessage', data.content);
         }
         if (data.audio) {
-          handleAudioChunk(data.audio)
+          // 👇 加上这行日志，就像装了个雷达！
+          console.log("🎵 收到后端发来的语音包啦！大小：", data.audio.length);
+          handleAudioChunk(data.audio);
+
         }
       },
       onerror(err) {
+        console.error("❌ 大模型流式返回出错:", err);
       },
-    })
+    });
   } catch (err) {
+    console.error("❌ 请求发送失败:", err);
   }
-}
+};
 
 function close() {
   ++ processId

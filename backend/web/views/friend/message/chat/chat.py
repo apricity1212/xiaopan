@@ -176,9 +176,8 @@ class MessageChatView(APIView):
 
     def work(self, app, inputs, mq):
         try:
-            # 原来的代码是 asyncio.run(self.run_tts_tasks(app, inputs, mq))
-            # 现在改成我们自己写的纯文字生成逻辑
-            asyncio.run(self.run_text_only(app, inputs, mq))
+            # 恢复语音合成(TTS)任务！
+            asyncio.run(self.run_tts_tasks(app, inputs, mq))
         finally:
             mq.put_nowait(None)
 

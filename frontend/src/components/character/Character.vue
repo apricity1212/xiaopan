@@ -59,6 +59,8 @@ async function openChatField() {
     }
   }
 }
+
+
 </script>
 
 <template>
@@ -88,9 +90,9 @@ async function openChatField() {
             <img :src="character.photo" alt="">
           </div>
         </div>
-        <div class="absolute left-24 right-4 top-58 text-white font-bold line-clamp-1 break-all">
-          {{ character.name }}
-        </div>
+    <div class="absolute left-24 right-4 top-58 text-white font-bold line-clamp-1 break-all">
+  {{ character.name }}
+   </div>
         <div class="absolute left-4 right-4 top-72 text-white line-clamp-4 break-all">
           {{ character.profile }}
         </div>

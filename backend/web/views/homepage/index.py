@@ -11,8 +11,11 @@ class HomepageIndexView(APIView):
             items_count = int(request.query_params.get('items_count'))
             search_query = request.query_params.get('search_query', '').strip()
             if search_query:
+                # 👇 这里加了最后一个 Q(...) 来匹配作者的用户名
                 queryset = Character.objects.filter(
-                    Q(name__icontains=search_query) | Q(profile__icontains=search_query)
+                    Q(name__icontains=search_query) |
+                    Q(profile__icontains=search_query) |
+                    Q(author__user__username__icontains=search_query)
                 )
             else:
                 queryset = Character.objects.all()

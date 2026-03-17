@@ -98,11 +98,21 @@ const router = createRouter({
 
 router.beforeEach((to, from) => {
   const user = useUserStore()
+
+  // 1. 原来的逻辑：需要登录的页面，没登录就踢回登录页
   if (to.meta.needLogin && user.hasPulledUserInfo && !user.isLogin()) {
     return {
       name: 'user-account-login-index'
     }
   }
+
+  // 👇 2. 新增的逻辑：已经登录的用户，不能再去登录页或注册页
+  if (user.isLogin() && (to.name === 'user-account-login-index' || to.name === 'user-account-register-index')) {
+    return {
+      name: 'homepage-index'  // 强制跳回主页
+    }
+  }
+
   return true
 })
 

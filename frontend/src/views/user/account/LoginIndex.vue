@@ -27,7 +27,8 @@ async function handleLogin() {
       if (data.result === 'success') {
         user.setAccessToken(data.access)
         user.setUserInfo(data)
-        await router.push({
+       // 👇 把 router.push 改成 router.replace
+        await router.replace({
           name: 'homepage-index'
         })
       } else {

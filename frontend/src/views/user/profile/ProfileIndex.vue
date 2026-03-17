@@ -14,6 +14,9 @@ const usernameRef = useTemplateRef('username-ref')
 const profileRef = useTemplateRef('profile-ref')
 const errorMessage = ref('')
 
+// 👇 新增 1：定义一个控制成功提示框显示的开关，默认关闭
+const showSuccessToast = ref(false)
+
 async function handleUpdate() {
   const photo = photoRef.value.myPhoto
   const username = usernameRef.value.myUsername.trim()
@@ -38,6 +41,13 @@ async function handleUpdate() {
       const data = res.data
       if (data.result === 'success') {
         user.setUserInfo(data)
+
+        // 👇 新增 2：更新成功时，打开提示框，并在 2 秒后自动关掉
+        showSuccessToast.value = true
+        setTimeout(() => {
+          showSuccessToast.value = false
+        }, 2000)
+
       } else {
         errorMessage.value = data.result
       }
@@ -63,6 +73,13 @@ async function handleUpdate() {
         </div>
       </div>
     </div>
+
+    <div v-if="showSuccessToast" class="toast toast-top toast-center z-[9999] transition-all duration-300">
+      <div class="alert alert-success text-white font-bold shadow-lg">
+        <span>✅ 资料更新成功！</span>
+      </div>
+    </div>
+
   </div>
 </template>
 

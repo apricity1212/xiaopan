@@ -1,4 +1,4 @@
-const platform = 'vue'   // vue、django、cloud
+const platform = 'cloud'   // vue、django、cloud
 
 const CONFIG_API = {
     HTTP_URL: '',
